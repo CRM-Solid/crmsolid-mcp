@@ -1,0 +1,108 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write   # npm provenance
+
+jobs:
+  publish:
+    name: build & publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Determine version
+        id: ver
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install
+        run: npm ci
+
+      # package.json is the source of truth. A tag that disagrees with it means
+      # somebody forgot to bump, and publishing anyway ships a mislabeled build.
+      # src/version.ts is checked too: it is what --version and the MCP
+      # serverInfo report, so a drift there lies to every user.
+      - name: Verify the tag, package.json and src/version.ts agree
+        shell: bash
+        run: |
+          pkg="$(node -p "require('./package.json').version")"
+          tag="${{ steps.ver.outputs.version }}"
+          if [ "$pkg" != "$tag" ]; then
+            echo "package.json is $pkg but the tag says $tag - bump one of them." >&2
+            exit 1
+          fi
+          src="$(node -p "require('fs').readFileSync('src/version.ts','utf8').match(/VERSION = '([^']+)'/)[1]")"
+          if [ "$src" != "$pkg" ]; then
+            echo "VERSION in src/version.ts is $src but package.json is $pkg." >&2
+            exit 1
+          fi
+          if ! grep -q "^## \[$pkg\]" CHANGELOG.md; then
+            echo "CHANGELOG.md has no entry for $pkg." >&2
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test the binary against a stub upstream
+        run: node scripts/smoke.mjs
+
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN secret is not set - aborting." >&2
+            exit 1
+          fi
+          # Anything with a hyphen in the version is a prerelease and must not
+          # become `latest`, or `npx @crmsolid/mcp-server` hands out a beta to
+          # every client that ever launches this server.
+          case "${{ steps.ver.outputs.version }}" in
+            *-*) tag=next ;;
+            *)   tag=latest ;;
+          esac
+          npm publish --provenance --access public --tag "$tag"
+
+      - name: Pack a tarball artifact
+        if: always()
+        run: npm pack --pack-destination ./artifacts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-tarball
+          path: artifacts/*.tgz
+          if-no-files-found: ignore

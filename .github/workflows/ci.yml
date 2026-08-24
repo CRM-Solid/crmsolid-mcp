@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build & test (node ${{ matrix.node }} / ${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        node: [ '20', '22' ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+      # The binary is what users run. It has to answer without a key, without a
+      # network, and without writing anything but the answer to stdout.
+      - name: Verify the CLI runs unconfigured
+        shell: bash
+        run: |
+          version="$(node dist/cli.js --version)"
+          expected="$(node -p "require('./package.json').version")"
+          if [ "$version" != "$expected" ]; then
+            echo "--version printed '$version' but package.json says '$expected'." >&2
+            exit 1
+          fi
+          node dist/cli.js --help | grep -q -- '--read-only'
+          if node dist/cli.js >/dev/null 2>&1; then
+            echo "the server started with no API key; it must exit non-zero." >&2
+            exit 1
+          fi
+
+      # A dual-output package is only correct if both entry points actually load.
+      - name: Verify ESM and CJS entry points
+        shell: bash
+        run: |
+          node --input-type=module -e "
+            import { Bridge, VERSION, toolGroup } from './dist/index.js';
+            if (typeof Bridge !== 'function') throw new Error('esm Bridge export missing');
+            if (toolGroup('crm_schedule_social_post') !== 'posts') throw new Error('esm group rules broken');
+            console.log('ESM ok', VERSION);
+          "
+          node --input-type=commonjs -e "
+            const { Bridge, VERSION, toolGroup } = require('./dist/index.cjs');
+            if (typeof Bridge !== 'function') throw new Error('cjs Bridge export missing');
+            if (toolGroup('crm_schedule_social_post') !== 'posts') throw new Error('cjs group rules broken');
+            console.log('CJS ok', VERSION);
+          "
+
+      - name: Smoke test the binary against a stub upstream
+        run: node scripts/smoke.mjs
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-node${{ matrix.node }}
+          path: coverage/**
+          if-no-files-found: ignore

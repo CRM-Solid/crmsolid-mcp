@@ -1,0 +1,77 @@
+{
+  "name": "@crmsolid/mcp-server",
+  "version": "0.1.0",
+  "description": "Manage every social media DM and post from your AI assistant, over MCP. Stdio Model Context Protocol server for CRM Solid: Instagram, Facebook, X, LinkedIn, TikTok, YouTube, Threads, Pinterest, Reddit, Bluesky, Telegram and WhatsApp inboxes plus scheduled posts, for Claude Desktop, Claude Code, Cursor and ChatGPT.",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "social-media",
+    "instagram",
+    "whatsapp",
+    "dm",
+    "crm",
+    "ai-agent",
+    "claude",
+    "scheduler"
+  ],
+  "homepage": "https://docs.crmsolid.com/integrations/mcp/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CRM-Solid/crmsolid-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CRM-Solid/crmsolid-mcp/issues"
+  },
+  "license": "MIT",
+  "author": "CRM Solid",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "crmsolid-mcp": "./dist/cli.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run clean && tsup && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^2.1.9",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
