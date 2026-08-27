@@ -262,6 +262,10 @@ Vendor neutral tutorials, including ones that do not involve CRM Solid at all:
 
 - [`@crmsolid/node`](https://github.com/CRM-Solid/crmsolid-node): the REST client, for code
   that is not an AI assistant.
+- [CRM Solid Clipper](https://chromewebstore.google.com/detail/crm-solid-clipper-save-le/mbdeafjdkhilgbdaoenggfamombmgpfm):
+  the browser extension, for the other direction. It puts a person into the CRM from the
+  page you are reading, which is where most contacts come from before any of this runs.
+  Source: [CRM-Solid/crmsolid-clipper](https://github.com/CRM-Solid/crmsolid-clipper).
 - The public v1 REST API behind all of this:
   [crmsolid.com/public-api](https://crmsolid.com/public-api).
 
