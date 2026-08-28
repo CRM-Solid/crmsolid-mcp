@@ -1,3 +1,11 @@
+<p align="center">
+  <a href="https://crmsolid.com">
+    <img src="./docs/images/mcp-server-social-media.png"
+         alt="CRM Solid MCP: read your social DM inbox and schedule posts from Claude, Cursor or ChatGPT"
+         width="900">
+  </a>
+</p>
+
 # MCP Server for Social Media: Manage Every DM and Post From Your AI Assistant
 
 [![npm version](https://img.shields.io/npm/v/@crmsolid/mcp-server.svg)](https://www.npmjs.com/package/@crmsolid/mcp-server)
@@ -53,6 +61,30 @@ Plan five posts for next week from what we shipped, and show me the table before
 Move Thursday's LinkedIn post to Friday 09:00 Europe/Istanbul.
 How did last month's posts do compared with the month before?
 ```
+
+### The panel behind the tools
+
+The server is not a separate copy of your data. It reads and writes the same social
+inbox and the same posting calendar you see in [CRM Solid](https://crmsolid.com), so a
+conversation you triage from Claude is already triaged when you open the panel, and a
+post your assistant queues shows up in the calendar with everything else.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/images/social-dm-inbox-dark.png">
+  <img src="./docs/images/social-dm-inbox-light.png"
+       alt="Unified social DM inbox in CRM Solid, with lead scores per conversation"
+       width="900">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/images/social-post-scheduler-dark.png">
+  <img src="./docs/images/social-post-scheduler-light.png"
+       alt="Social media post scheduler calendar that schedule_post writes into"
+       width="900">
+</picture>
+
+Both screens come from the live demo at
+[demo.crmsolid.com](https://demo.crmsolid.com), which is read only and needs no account.
 
 ## Supported platforms
 
