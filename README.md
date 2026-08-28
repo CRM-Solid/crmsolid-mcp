@@ -298,6 +298,9 @@ Vendor neutral tutorials, including ones that do not involve CRM Solid at all:
   the browser extension, for the other direction. It puts a person into the CRM from the
   page you are reading, which is where most contacts come from before any of this runs.
   Source: [CRM-Solid/crmsolid-clipper](https://github.com/CRM-Solid/crmsolid-clipper).
+- [`n8n-nodes-crmsolid`](https://github.com/CRM-Solid/n8n-nodes-crmsolid): the n8n
+  community node, for the workflows an assistant is not in. Same API, same keys, so a
+  contact your assistant files is the one an n8n branch picks up.
 - The public v1 REST API behind all of this:
   [crmsolid.com/public-api](https://crmsolid.com/public-api).
 
