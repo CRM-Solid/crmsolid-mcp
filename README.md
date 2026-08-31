@@ -12,6 +12,7 @@
 [![CI](https://github.com/CRM-Solid/crmsolid-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/CRM-Solid/crmsolid-mcp/actions/workflows/ci.yml)
 [![node](https://img.shields.io/node/v/@crmsolid/mcp-server.svg)](https://nodejs.org)
 [![license](https://img.shields.io/npm/l/@crmsolid/mcp-server.svg)](https://github.com/CRM-Solid/crmsolid-mcp/blob/main/LICENSE)
+[![AllMCPs](https://allmcps.com/api/badge/crm-solid-mcp)](https://allmcps.com/mcp/crm-solid-mcp)
 
 `@crmsolid/mcp-server` is an MCP server for social media. It gives Claude Desktop, Claude
 Code, Cursor, ChatGPT and any other Model Context Protocol client typed access to your
